@@ -1,0 +1,54 @@
+name: Set Gsd By Shell
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 30 * * * *
+  push:
+    branches: [ master ]
+    paths-ignore: # 下列文件的变更不触发部署
+      - README.md
+      - LICENSE
+  #pull_request:
+  #  branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Gsd
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v2
+
+    #- name: Install jq
+    #  run: sudo apt-get install jq
+
+    - name: Do it
+      shell: bash
+      env:
+        API_URL: ${{ secrets.API_URL }}
+        API_URL_CHB: ${{ secrets.API_URL_CHB }}
+      run: |
+        #random_time=$(($RANDOM % 5))
+        #echo "等待 ${random_time} 分钟后开始执行"
+        #for((i=0;i<${random_time};i++));
+        #do
+        #  echo "倒计时 $[${random_time}-$i] 分钟"
+        #  sleep 1m
+        #done
+        sudo timedatectl set-timezone Asia/Shanghai
+        chmod +x ./phone.github.sh
+        bash ./phone.github.sh
+
+    - name: Commit
+      run: |
+        git config --global user.email 'bdaxei@users.noreply.github.com'
+        git config --global user.name 'bdaxei'
+        git add .
+        git commit -m "update @ $(date '+%Y-%m-%d %H:%M:%S')" -a
+        git push
+
+    #- name: Push changes
+    #  uses: ad-m/github-push-action@master
+    #  with:
+    #    github_token: ${{ secrets.GITHUB_TOKEN_LOM }}

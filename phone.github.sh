@@ -49,7 +49,7 @@ setNext () {
 
 doGsd () {
     i=0
-    while ( [ ! -f "${phoneD}" ] && [ ${i} -lt ${numLimit} ] ); do
+    while ( [ ! -f "${phoneD}" ] && [ ${i} -lt ${phoneNumLimit} ] ); do
         ((i+=1))
         curl -s -o "${phoneD}" -k -G -d "op=insert" -d "val=%7B%22tel%22:%22${phone}%22,%22gsd%22:%22${1}%22%7D" "${API_URL}"
         myEcho "GSD insert 第 ${i} 次 等待 1 秒"
@@ -67,7 +67,7 @@ doGsd () {
 
 curlCHB () {
     i=0
-    while ( [ ! -f "${phoneP}" ] && [ ${i} -lt ${numLimit} ] ); do
+    while ( [ ! -f "${phoneP}" ] && [ ${i} -lt ${phoneNumLimit} ] ); do
         ((i+=1))
         cur_sec=`date '+%s'`
         curl -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36" \
@@ -211,7 +211,7 @@ goonGsd () {
 
 curlPhone () {
     i=0
-    while ( [ ! -f "${phoneG}" ] && [ ${i} -lt ${numLimit} ] ); do
+    while ( [ ! -f "${phoneG}" ] && [ ${i} -lt ${phoneNumLimit} ] ); do
         ((i+=1))
         curl -s -o "${phoneG}" -k -G -d "op=getOne" -d "tel=${phone}" "${API_URL}"
         myEcho "GSD getOne 第 ${i} 次 等待 1 秒"
@@ -219,11 +219,11 @@ curlPhone () {
     done
 }
 
-numLimit=30
+. phone.inc.sh
 phoneI="./phone.i.txt"
 [[ ! -f ${phoneI} ]] && (echo 0 >${phoneI})
 numI=$(cat "${phoneI}")
-if [[ ${numI} -eq ${numLimit} ]]; then
+if [[ ${numI} -eq ${phoneNumLimit} ]]; then
     rm -f "${phoneI}"
     exit 0
 fi
@@ -231,18 +231,26 @@ fi
 myEcho "开始第 ${numI_next} 次操作"
 
 phoneN="./phone.txt"
-[[ ! -f ${phoneN} ]] && (echo 0 >${phoneN})
-left=17
-center=4
-start=$(cat "${phoneN}")
-if [[ "${start}" == "10000" ]]; then
-    myEcho "号码【${left}${center}（0000 ---> 9999）】处理完毕"
-    exit 0
+if [[ "${phoneOrder}" == "asc" ]]; then
+    [[ ! -f ${phoneN} ]] && (echo 0 >${phoneN})
+    phoneStart=$(cat "${phoneN}")
+    if [[ "${phoneStart}" == "10000" ]]; then
+        myEcho "号码【${phoneLeft}${phoneCenter}（0000 ---> 9999）】处理完毕"
+        exit 0
+    fi
+    ((mob_next=${phoneStart}+1))
+else
+    [[ ! -f ${phoneN} ]] && (echo 9999 >${phoneN})
+    phoneStart=$(cat "${phoneN}")
+    if [[ "${phoneStart}" == "-1" ]]; then
+        myEcho "号码【${phoneLeft}${phoneCenter}（9999 ---> 0000）】处理完毕"
+        exit 0
+    fi
+    ((mob_next=${phoneStart}-1))
 fi
-((mob_next=${start}+1))
 echo -e >>${logFile}
 echo
-phone=${left}${center}$(add0 "${start}")
+phone=${phoneLeft}${phoneCenter}$(add0 "${phoneStart}")
 phoneG="${htmlDir}/${phone}.get.html"
 phoneD="${htmlDir}/${phone}.do.html"
 phoneP="${htmlDir}/${phone}.html"
@@ -267,7 +275,7 @@ fi
 rm -f "${phoneG}"
 if [[ ${goonNext} -ne 1 ]]; then
     echo ${numI_next} >${phoneI}
-    if [[ ${numI_next} -lt ${numLimit} ]]; then
+    if [[ ${numI_next} -lt ${phoneNumLimit} ]]; then
         numMin=`awk -v x=0.1 -v y=60 'BEGIN{printf "%.0f\n",x*y}'`
         numMax=`awk -v x=0.3 -v y=60 'BEGIN{printf "%.0f\n",x*y}'`
         numRand=$[$RANDOM%$((${numMax}-${numMin}+1))+${numMin}]

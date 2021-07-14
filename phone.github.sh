@@ -7,18 +7,17 @@ logFile="${logsDir}/phone.$(date -d today +'%Y-%m-%d').log"
 [[ ! -d "${logsDir}" ]] && (mkdir "${logsDir}")
 [[ ! -d "${htmlDir}" ]] && (mkdir "${htmlDir}")
 if ! type jq &>/dev/null; then
-    sudo apt-get install jq
-    sudo snap install jq
-    #yum install jq
+    if type yum &>/dev/null; then
+        yum install jq
+    elif type sudo &>/dev/null; then
+        sudo apt-get install jq
+        sudo snap install jq
+    fi
 fi
 
 gsd="-"
 gsdOld=""
 goonNext=0
-#phone=1540000
-#phone=1560003
-#phone=1311234
-#phone=1455267
 
 myEcho () {
     st="$(date '+%Y-%m-%d %H:%M:%S') ${1}"

@@ -219,7 +219,7 @@ curlPhone () {
 }
 
 . phone.inc.sh
-((phoneNL=${phoneNumLimit}*5))
+((phoneNL=${phoneNumLimit}*${phoneStep}))
 phoneI="./phone.i.txt"
 [[ ! -f ${phoneI} ]] && (echo 0 >${phoneI})
 numI=$(cat "${phoneI}")

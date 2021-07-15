@@ -219,10 +219,11 @@ curlPhone () {
 }
 
 . phone.inc.sh
+((phoneNL=${phoneNumLimit}*5))
 phoneI="./phone.i.txt"
 [[ ! -f ${phoneI} ]] && (echo 0 >${phoneI})
 numI=$(cat "${phoneI}")
-if [[ ${numI} -eq ${phoneNumLimit} ]]; then
+if [[ ${numI} -eq ${phoneNL} ]]; then
     rm -f "${phoneI}"
     exit 0
 fi
@@ -274,7 +275,7 @@ fi
 rm -f "${phoneG}"
 if [[ ${goonNext} -ne 1 ]]; then
     echo ${numI_next} >${phoneI}
-    if [[ ${numI_next} -lt ${phoneNumLimit} ]]; then
+    if [[ ${numI_next} -lt ${phoneNL} ]]; then
         numMin=`awk -v x=0.1 -v y=60 'BEGIN{printf "%.0f\n",x*y}'`
         numMax=`awk -v x=0.3 -v y=60 'BEGIN{printf "%.0f\n",x*y}'`
         numRand=$[$RANDOM%$((${numMax}-${numMin}+1))+${numMin}]

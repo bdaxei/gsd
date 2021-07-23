@@ -2,6 +2,6 @@
 
 phoneNumLimit=10
 phoneStep=4
-phoneLeft=18
+phoneLeft=15
 phoneCenter=3
-phoneOrder="asc"
+phoneOrder="desc"

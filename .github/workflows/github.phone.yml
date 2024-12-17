@@ -4,8 +4,8 @@ on:
   workflow_dispatch: # 手动运行
   watch:
     types: [ started ] # 点 star 触发运行
-  schedule:
-    - cron: '*/30 * * * *' # 每隔 30 分钟运行
+  #schedule:
+    #- cron: '*/30 * * * *' # 每隔 30 分钟运行
   push:
     branches: [ master ] # 推送 master 分支时运行
     paths-ignore: # 下列文件的变更不触发部署
